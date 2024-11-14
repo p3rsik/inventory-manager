@@ -5,7 +5,7 @@ export type EntryDataType = {
   id: number;
   name: string;
   comesFrom: string;
-  imgUrl: string;
+  imgUrl: string | null; // Allow imgUrl to be null
 };
 
 type PropsType = {

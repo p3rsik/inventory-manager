@@ -37,12 +37,7 @@
   }
 }
 
-.thumbnail {
-  width: 200px;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-}
-
+/* Full-screen overlay styles */
 .overlay {
   position: fixed;
   top: 0;
@@ -54,12 +49,29 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  overflow: hidden; /* Prevent scrolling when overlay is active */
 }
 
+/* Full-screen image styling */
 .full-screen {
   width: 100vw; /* Make the image take up the full viewport width */
   height: 100vh; /* Make the image take up the full viewport height */
   object-fit: contain; /* Ensures the image maintains its aspect ratio */
   cursor: pointer;
   transition: all 0.3s ease-in-out;
+}
+
+/* Gallery image thumbnails styles */
+.thumbnail {
+  width: 150px; /* Set a fixed width for the images */
+  height: 150px; /* Set a fixed height to make images consistent */
+  object-fit: cover; /* Ensure the image covers the box without distortion */
+  cursor: pointer; /* Indicate that the image is clickable */
+  transition: all 0.3s ease-in-out;
+}
+
+/* Optional: Hover effect for images */
+.thumbnail:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
 }

@@ -1,13 +1,14 @@
-import React from "react";
-import { Box, Button, TextField } from "@mui/material";
+import React, { useState } from "react";
 import { styled } from "@mui/material/styles";
-import { ChangeEvent, useState } from "react";
+import { Button, TextField, Box, Typography } from "@mui/material";
+import { EntryDataType } from "../main-table/MainTable";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import Modal from "./new-field-window/Modal";
 
 interface AddNewEntryProps {
-  onAddNewEntry: (event: React.SyntheticEvent, newValue: string) => void;
+  onAddNewEntry: (newEntry: EntryDataType) => void;
+  entryData: Array<EntryDataType>;
 }
+
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
   clipPath: "inset(50%)",
@@ -20,78 +21,100 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-const AddNewEntry: React.FC<AddNewEntryProps> = ({ onAddNewEntry }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [error, setError] = useState<string | null>(null);
+const AddNewEntry: React.FC<AddNewEntryProps> = ({ onAddNewEntry, entryData }) => {
+  const [name, setName] = useState<string>("");
+  const [comesFrom, setComesFrom] = useState<string>("");
+  const [imgUrl, setImgUrl] = useState<string | null>(null); // Store the image URL
+  const [previewImage, setPreviewImage] = useState<string | null>(null); // For image preview
 
-  const onNewTitleChangeHandler = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setTitle(e.currentTarget.value);
-    setError(null);
+  // Handle form field changes
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.target.value);
   };
-  const onCreateButtonHandler = (event: React.SyntheticEvent) => {
-    if (title.trim() !== "") {
-      setTitle("");
-      const newValue = "2"; // Replace this with the actual value you want to pass
-      onAddNewEntry(event, newValue);
-    } else {
-      setError("Incorrect Entry");
+
+  const handleComesFromChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setComesFrom(event.target.value);
+  };
+
+  // Handle file upload and image preview
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImgUrl(reader.result as string); // Set imgUrl to the base64 string here
+        setPreviewImage(reader.result as string); // Preview image also as base64 string
+      };
+      reader.readAsDataURL(file); // This returns base64 string
     }
   };
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-  return (
-    <div>
-      <Box component="form" sx={{ "& > :not(style)": { m: 1, width: "25ch" } }} noValidate autoComplete="off">
-        <Box component="form" sx={{ "& > :not(style)": { m: 1, width: "25ch" } }} noValidate autoComplete="off">
-          <TextField
-            onChange={onNewTitleChangeHandler}
-            value={title}
-            error={error ? true : false}
-            helperText={error ? "Required" : ""}
-            id="outlined-basic"
-            label="Name"
-            variant="outlined"
-          />
-          <TextField
-            error={error ? true : false}
-            helperText={error ? "Required" : ""}
-            id="outlined-basic"
-            label="Comes From"
-            variant="outlined"
-          />
-          <Button
-            component="label"
-            role={undefined}
-            variant="contained"
-            color="success"
-            tabIndex={-1}
-            startIcon={<CloudUploadIcon />}>
-            Upload Images
-            <VisuallyHiddenInput type="file" onChange={(event) => console.log(event.target.files)} multiple />
-          </Button>
-        </Box>
-        <Box component="form" sx={{ "& > :not(style)": { m: 1, width: "25ch" } }} noValidate autoComplete="off">
-          <Button variant="outlined" onClick={openModal}>
-            Add Field
-          </Button>
+  // Handle form submission and entry creation
+  const onCreateButtonHandler = () => {
+    if (name && comesFrom) {
+      const newEntry: EntryDataType = {
+        id: Math.max(...entryData.map((item) => item.id)) + 1,
+        name: name,
+        comesFrom: comesFrom,
+        imgUrl: imgUrl || "", // Use empty string if no image
+      };
 
-          {isModalOpen && (
-            <Modal onClose={closeModal}>
-              <h2>Type in new parameter and value for it.</h2>
-            </Modal>
-          )}
-          <Button variant="contained" onClick={onCreateButtonHandler}>
-            Create
-          </Button>
-        </Box>
+      onAddNewEntry(newEntry);
+      setName("");
+      setComesFrom("");
+      setImgUrl(null);
+      setPreviewImage(null);
+    }
+  };
+
+  return (
+    <Box sx={{ padding: 2, maxWidth: 500, margin: "0 auto" }}>
+      <Typography variant="h6" gutterBottom>
+        Add New Entry
+      </Typography>
+      <TextField
+        label="Name"
+        variant="outlined"
+        fullWidth
+        value={name}
+        onChange={handleNameChange}
+        sx={{ marginBottom: 2 }}
+      />
+      <TextField
+        label="Comes From"
+        variant="outlined"
+        fullWidth
+        value={comesFrom}
+        onChange={handleComesFromChange}
+        sx={{ marginBottom: 2 }}
+      />
+      <Box sx={{ paddingBottom: 2 }}>
+        <Button variant="contained" component="label" startIcon={<CloudUploadIcon />}>
+          Upload Image
+          <VisuallyHiddenInput type="file" accept="image/*" onChange={handleFileChange} />
+        </Button>
       </Box>
-    </div>
+
+      {/* Image Preview */}
+      {previewImage && (
+        <Box sx={{ marginBottom: 2 }}>
+          <img
+            src={previewImage}
+            alt="Preview"
+            style={{ maxWidth: "100%", maxHeight: "200px", objectFit: "contain" }}
+          />
+        </Box>
+      )}
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={onCreateButtonHandler}
+        disabled={!name || !comesFrom} // Disable button if fields are empty
+      >
+        Create
+      </Button>
+    </Box>
   );
 };
 

@@ -7,27 +7,37 @@ type PropsType = {
 };
 
 export function GalleryTable(props: PropsType) {
-  const [fullScreenImageId, setFullScreenImageId] = useState<number | null>(null);
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
 
-  const toggleFullScreen = (id: number | null) => {
-    setFullScreenImageId(id);
+  const handleImageClick = (imgUrl: string) => {
+    setFullScreenImage(imgUrl);
   };
 
-  // Filter out entries without a valid image URL
-  const entriesWithImages = props.entry.filter((item) => item.imgUrl && item.imgUrl !== "");
+  const handleCloseFullScreen = () => {
+    setFullScreenImage(null);
+  };
+
+  // Flatten all images across entries for display in the gallery
+  const images = props.entry
+    .filter((item) => item.imgUrls && item.imgUrls.length > 0)
+    .flatMap((item) =>
+      item.imgUrls.map((url) => ({
+        id: item.id,
+        url,
+        name: item.name,
+      }))
+    );
 
   return (
     <div style={{ padding: "20px" }}>
       <ImageList sx={{ width: "100%", height: "auto", overflow: "hidden" }} cols={5} gap={6}>
-        {" "}
-        {/* Adjust gap to 6px and columns to 5 */}
-        {entriesWithImages.map((item) => (
-          <ImageListItem key={item.id} sx={{ display: "flex", justifyContent: "center" }}>
+        {images.map((image, index) => (
+          <ImageListItem key={`${image.id}-${index}`} sx={{ display: "flex", justifyContent: "center" }}>
             <img
-              className={"thumbnail"}
-              onClick={() => toggleFullScreen(item.id)}
-              src={item.imgUrl || "path_to_placeholder_image"} // Use a placeholder image if imgUrl is null
-              alt={item.name || "Image"} // Show name as alt text
+              className="thumbnail"
+              onClick={() => handleImageClick(image.url)}
+              src={image.url}
+              alt={image.name || "Image"}
               loading="lazy"
             />
           </ImageListItem>
@@ -35,13 +45,13 @@ export function GalleryTable(props: PropsType) {
       </ImageList>
 
       {/* Full-screen image view on click */}
-      {fullScreenImageId !== null && (
-        <div className="overlay" onClick={() => toggleFullScreen(null)} style={overlayStyles}>
+      {fullScreenImage && (
+        <div className="overlay" onClick={handleCloseFullScreen} style={overlayStyles}>
           <img
-            src={props.entry.find((img) => img.id === fullScreenImageId)?.imgUrl || ""}
+            src={fullScreenImage}
             className="full-screen"
             alt="Full Screen"
-            style={{ width: "80%", maxHeight: "80%", objectFit: "contain" }} // Adjust size for full-screen image
+            style={{ width: "80%", maxHeight: "80%", objectFit: "contain" }}
           />
         </div>
       )}

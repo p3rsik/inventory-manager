@@ -3,16 +3,30 @@ import "./App.css";
 import { Tab, Box } from "@mui/material";
 import { TabPanel, TabContext, TabList } from "@mui/lab";
 import { GalleryTable } from "./gallery-table/GalleryTable";
-import { SearchTable } from "./search-table/SearchTable";
 import { EntryDataType, MainTable } from "./main-table/MainTable";
 import AddNewEntry from "./add-new-entry/AddNewEntry";
 
 const App: React.FC = () => {
   // State to hold the entry data
   const [entryData, setEntryData] = useState<Array<EntryDataType>>([
-    { id: 1, name: "Pisya", comesFrom: "zalupa 1", imgUrl: "https://picsum.photos/100" },
-    { id: 2, name: "Zopa", comesFrom: "zalupa 2", imgUrl: "https://picsum.photos/200" },
-    { id: 3, name: "Parasha", comesFrom: "zalupa 3", imgUrl: "https://picsum.photos/300" },
+    {
+      id: 1,
+      name: "Pisya",
+      comesFrom: "zalupa 1",
+      imgUrls: ["https://picsum.photos/100"],
+    },
+    {
+      id: 2,
+      name: "Zopa",
+      comesFrom: "zalupa 2",
+      imgUrls: ["https://picsum.photos/200"],
+    },
+    {
+      id: 3,
+      name: "Parasha",
+      comesFrom: "zalupa 3",
+      imgUrls: ["https://picsum.photos/300"],
+    },
   ]);
 
   // State to track selected tab
@@ -40,7 +54,6 @@ const App: React.FC = () => {
             <Tab label="Add New" value="1" />
             <Tab label="Table" value="2" />
             <Tab label="Gallery" value="3" />
-            <Tab label="Search..." value="4" />
           </TabList>
         </Box>
         <TabPanel value="1">
@@ -51,9 +64,6 @@ const App: React.FC = () => {
         </TabPanel>
         <TabPanel value="3">
           <GalleryTable entry={entryData} />
-        </TabPanel>
-        <TabPanel value="4">
-          <SearchTable />
         </TabPanel>
       </TabContext>
     </Box>

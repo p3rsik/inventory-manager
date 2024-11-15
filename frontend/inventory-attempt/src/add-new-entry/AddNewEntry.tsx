@@ -24,46 +24,43 @@ const VisuallyHiddenInput = styled("input")({
 const AddNewEntry: React.FC<AddNewEntryProps> = ({ onAddNewEntry, entryData }) => {
   const [name, setName] = useState<string>("");
   const [comesFrom, setComesFrom] = useState<string>("");
-  const [imgUrl, setImgUrl] = useState<string | null>(null); // Store the image URL
-  const [previewImage, setPreviewImage] = useState<string | null>(null); // For image preview
+  const [imgUrls, setImgUrls] = useState<string[]>([]);
+  const [previewImages, setPreviewImages] = useState<string[]>([]);
 
-  // Handle form field changes
-  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
-  };
-
-  const handleComesFromChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setComesFrom(event.target.value);
-  };
-
-  // Handle file upload and image preview
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImgUrl(reader.result as string); // Set imgUrl to the base64 string here
-        setPreviewImage(reader.result as string); // Preview image also as base64 string
-      };
-      reader.readAsDataURL(file); // This returns base64 string
+    const files = event.target.files;
+    if (files) {
+      const filePreviews: string[] = [];
+      const fileUrls: string[] = [];
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          fileUrls.push(reader.result as string);
+          filePreviews.push(reader.result as string);
+          if (fileUrls.length === files.length) {
+            setImgUrls(fileUrls);
+            setPreviewImages(filePreviews);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
-  // Handle form submission and entry creation
   const onCreateButtonHandler = () => {
     if (name && comesFrom) {
       const newEntry: EntryDataType = {
-        id: Math.max(...entryData.map((item) => item.id)) + 1,
-        name: name,
-        comesFrom: comesFrom,
-        imgUrl: imgUrl || "", // Use empty string if no image
+        id: Math.max(...entryData.map((item) => item.id), 0) + 1,
+        name,
+        comesFrom,
+        imgUrls,
       };
 
       onAddNewEntry(newEntry);
       setName("");
       setComesFrom("");
-      setImgUrl(null);
-      setPreviewImage(null);
+      setImgUrls([]);
+      setPreviewImages([]);
     }
   };
 
@@ -77,7 +74,7 @@ const AddNewEntry: React.FC<AddNewEntryProps> = ({ onAddNewEntry, entryData }) =
         variant="outlined"
         fullWidth
         value={name}
-        onChange={handleNameChange}
+        onChange={(e) => setName(e.target.value)}
         sx={{ marginBottom: 2 }}
       />
       <TextField
@@ -85,33 +82,28 @@ const AddNewEntry: React.FC<AddNewEntryProps> = ({ onAddNewEntry, entryData }) =
         variant="outlined"
         fullWidth
         value={comesFrom}
-        onChange={handleComesFromChange}
+        onChange={(e) => setComesFrom(e.target.value)}
         sx={{ marginBottom: 2 }}
       />
       <Box sx={{ paddingBottom: 2 }}>
         <Button variant="contained" component="label" startIcon={<CloudUploadIcon />}>
-          Upload Image
-          <VisuallyHiddenInput type="file" accept="image/*" onChange={handleFileChange} />
+          Upload Images
+          <VisuallyHiddenInput type="file" accept="image/*" onChange={handleFileChange} multiple />
         </Button>
       </Box>
-
-      {/* Image Preview */}
-      {previewImage && (
-        <Box sx={{ marginBottom: 2 }}>
-          <img
-            src={previewImage}
-            alt="Preview"
-            style={{ maxWidth: "100%", maxHeight: "200px", objectFit: "contain" }}
-          />
+      {previewImages.length > 0 && (
+        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", marginBottom: 2 }}>
+          {previewImages.map((img, index) => (
+            <img
+              key={index}
+              src={img}
+              alt={`Preview ${index}`}
+              style={{ maxWidth: "100px", maxHeight: "100px", objectFit: "contain" }}
+            />
+          ))}
         </Box>
       )}
-
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={onCreateButtonHandler}
-        disabled={!name || !comesFrom} // Disable button if fields are empty
-      >
+      <Button variant="contained" color="primary" onClick={onCreateButtonHandler} disabled={!name || !comesFrom}>
         Create
       </Button>
     </Box>

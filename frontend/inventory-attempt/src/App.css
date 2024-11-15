@@ -54,8 +54,8 @@
 
 /* Full-screen image styling */
 .full-screen {
-  width: 100vw; /* Make the image take up the full viewport width */
-  height: 100vh; /* Make the image take up the full viewport height */
+  width: 100vw;
+  height: 100vh;
   object-fit: contain; /* Ensures the image maintains its aspect ratio */
   cursor: pointer;
   transition: all 0.3s ease-in-out;
@@ -63,8 +63,8 @@
 
 /* Gallery image thumbnails styles */
 .thumbnail {
-  width: 150px; /* Set a fixed width for the images */
-  height: 150px; /* Set a fixed height to make images consistent */
+  width: 150px;
+  height: 150px;
   object-fit: cover; /* Ensure the image covers the box without distortion */
   cursor: pointer; /* Indicate that the image is clickable */
   transition: all 0.3s ease-in-out;

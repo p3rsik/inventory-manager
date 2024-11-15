@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import ReactDOM from "react-dom";
-import "./Modal.css"; // CSS for styling the modal (optional)
+import "./Modal.css";
 import { Box, Button, TextField } from "@mui/material";
 
 interface ModalProps {
